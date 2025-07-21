@@ -1,11 +1,17 @@
 import wave
 import parselmouth as pm
+import soundfile as sf
 import numpy as np
 from pathlib import Path
 import resampy
 
+def get_bit_depth(filename):
+    with sf.SoundFile(filename) as f:
+        bit_depth = f.subtype_info.split()[0]
+        return int(bit_depth)
+
 def read_float_audio(filename, header_only=False, channel=0):
-    wf = pm.Audio(filename)
+    wf = pm.Sound(filename)
 
     if isinstance(filename, Path):
         filename = str(filename)
@@ -19,7 +25,7 @@ def read_float_audio(filename, header_only=False, channel=0):
     # check the input channel is valid
     assert channel < channel_number
 
-    bit_depth = pm.praat.call(wf, "Get number of bits per sample")
+    bit_depth = get_bit_depth(filename)
 
     # set wav header
     audio.set_header(sample_rate=wf.get_sampling_frequency(), sample_size=wf.get_number_of_frames(), channel_number=1,
@@ -27,14 +33,11 @@ def read_float_audio(filename, header_only=False, channel=0):
     
     # set wav header
     if not header_only:
-        x = wf.as_array[wf.get_number_of_frames()]
-
         assert (channel_number <= 2)
 
-        audio_bytes = np.frombuffer(x, dtype='float32')
+        audio_bytes = wf.as_array().ravel()
 
         # get the first channel if stereo
-
         if channel_number == 2:
             audio_bytes = audio_bytes[channel_number::2]
 
