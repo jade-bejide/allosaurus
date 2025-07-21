@@ -1,6 +1,6 @@
 from allosaurus.am.utils import *
 from pathlib import Path
-from allosaurus.audio import read_audio
+from allosaurus.audio import read_audio, read_float_audio
 from allosaurus.pm.factory import read_pm
 from allosaurus.am.factory import read_am
 from allosaurus.lm.factory import read_lm
@@ -68,7 +68,8 @@ class Recognizer:
             assert str(filename).endswith('.wav'), "only wave file is supported in allosaurus"
 
         # load wav audio
-        audio = read_audio(filename)
+        # audio = read_audio(filename)
+        audio = read_float_audio(filename)
 
         # extract feature
         feat = self.pm.compute(audio)

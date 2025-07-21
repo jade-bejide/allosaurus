@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 from allosaurus.model import resolve_model_name
-from allosaurus.audio import read_audio
+from allosaurus.audio import read_audio, read_float_audio
 from allosaurus.pm.factory import read_pm
 from allosaurus.pm.kdict import KaldiWriter
 from tqdm import tqdm
@@ -30,7 +30,8 @@ def prepare_feature(data_path, model):
 
         assert Path(audio_path).exists(), audio_path+" does not exist!"
 
-        audio = read_audio(audio_path)
+        # audio = read_audio(audio_path)
+        audio = read_float_audio(audio_path)
 
         # extract feature
         feat = pm.compute(audio)

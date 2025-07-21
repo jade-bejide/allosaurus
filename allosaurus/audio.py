@@ -1,7 +1,50 @@
 import wave
+import parselmouth as pm
 import numpy as np
 from pathlib import Path
 import resampy
+
+def read_float_audio(filename, header_only=False, channel=0):
+    wf = pm.Audio(filename)
+
+    if isinstance(filename, Path):
+        filename = str(filename)
+
+    # initialize audio
+    audio = Audio()
+
+    # set stream basic info
+    channel_number = wf.get_number_of_channels()
+
+    # check the input channel is valid
+    assert channel < channel_number
+
+    bit_depth = pm.praat.call(wf, "Get number of bits per sample")
+
+    # set wav header
+    audio.set_header(sample_rate=wf.get_sampling_frequency(), sample_size=wf.get_number_of_frames(), channel_number=1,
+                     sample_width=bit_depth)
+    
+    # set wav header
+    if not header_only:
+        x = wf.as_array[wf.get_number_of_frames()]
+
+        assert (channel_number <= 2)
+
+        audio_bytes = np.frombuffer(x, dtype='float32')
+
+        # get the first channel if stereo
+
+        if channel_number == 2:
+            audio_bytes = audio_bytes[channel_number::2]
+
+        audio.samples = audio_bytes
+
+        # when some utils piping to stdout, sample size might not be correct (e.g: lame --decode)
+        audio.sample_size = len(audio.samples)
+
+    return audio
+
 
 
 def read_audio(filename, header_only=False, channel=0):
